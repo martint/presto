@@ -95,7 +95,7 @@ import io.trino.sql.tree.LambdaExpression;
 import io.trino.sql.tree.Lateral;
 import io.trino.sql.tree.LikeClause;
 import io.trino.sql.tree.Limit;
-import io.trino.sql.tree.LogicalBinaryExpression;
+import io.trino.sql.tree.LogicalExpression;
 import io.trino.sql.tree.LongLiteral;
 import io.trino.sql.tree.Merge;
 import io.trino.sql.tree.MergeDelete;
@@ -771,23 +771,23 @@ public class TestSqlParser
     @Test
     public void testPrecedenceAndAssociativity()
     {
-        assertExpression("1 AND 2 OR 3", new LogicalBinaryExpression(LogicalBinaryExpression.Operator.OR,
-                new LogicalBinaryExpression(LogicalBinaryExpression.Operator.AND,
+        assertExpression("1 AND 2 OR 3", LogicalExpression.or(
+                LogicalExpression.and(
                         new LongLiteral("1"),
                         new LongLiteral("2")),
                 new LongLiteral("3")));
 
-        assertExpression("1 OR 2 AND 3", new LogicalBinaryExpression(LogicalBinaryExpression.Operator.OR,
+        assertExpression("1 OR 2 AND 3", LogicalExpression.or(
                 new LongLiteral("1"),
-                new LogicalBinaryExpression(LogicalBinaryExpression.Operator.AND,
+                LogicalExpression.and(
                         new LongLiteral("2"),
                         new LongLiteral("3"))));
 
-        assertExpression("NOT 1 AND 2", new LogicalBinaryExpression(LogicalBinaryExpression.Operator.AND,
+        assertExpression("NOT 1 AND 2", LogicalExpression.and(
                 new NotExpression(new LongLiteral("1")),
                 new LongLiteral("2")));
 
-        assertExpression("NOT 1 OR 2", new LogicalBinaryExpression(LogicalBinaryExpression.Operator.OR,
+        assertExpression("NOT 1 OR 2", LogicalExpression.or(
                 new NotExpression(new LongLiteral("1")),
                 new LongLiteral("2")));
 
@@ -2536,7 +2536,7 @@ public class TestSqlParser
                     createShowStats(qualifiedName,
                             ImmutableList.of(new AllColumns()),
                             Optional.of(
-                                    new LogicalBinaryExpression(LogicalBinaryExpression.Operator.OR,
+                                    LogicalExpression.or(
                                             new ComparisonExpression(ComparisonExpression.Operator.GREATER_THAN,
                                                     new Identifier("field"),
                                                     new LongLiteral("0")),
