@@ -1395,7 +1395,7 @@ class AstBuilder
             return Optional.empty();
         });
 
-        return new LogicalExpression(LogicalExpression.Operator.OR, visit(terms, Expression.class));
+        return new LogicalExpression(getLocation(context), LogicalExpression.Operator.OR, visit(terms, Expression.class));
     }
 
     @Override
@@ -1410,7 +1410,7 @@ class AstBuilder
             return Optional.empty();
         });
 
-        return new LogicalExpression(LogicalExpression.Operator.AND, visit(terms, Expression.class));
+        return new LogicalExpression(getLocation(context), LogicalExpression.Operator.AND, visit(terms, Expression.class));
     }
 
     private static List<ParserRuleContext> flatten(ParserRuleContext root, Function<ParserRuleContext, Optional<List<? extends ParserRuleContext>>> extractChildren)
@@ -2941,18 +2941,6 @@ class AstBuilder
         }
 
         throw new IllegalArgumentException("Unsupported sampling method: " + token.getText());
-    }
-
-    private static LogicalExpression.Operator getLogicalBinaryOperator(Token token)
-    {
-        switch (token.getType()) {
-            case SqlBaseLexer.AND:
-                return LogicalExpression.Operator.AND;
-            case SqlBaseLexer.OR:
-                return LogicalExpression.Operator.OR;
-        }
-
-        throw new IllegalArgumentException("Unsupported operator: " + token.getText());
     }
 
     private static SortItem.NullOrdering getNullOrderingType(Token token)

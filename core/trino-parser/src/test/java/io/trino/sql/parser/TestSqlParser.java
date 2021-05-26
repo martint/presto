@@ -771,6 +771,53 @@ public class TestSqlParser
     @Test
     public void testPrecedenceAndAssociativity()
     {
+        assertThat(expression("1 AND 2 AND 3 AND 4"))
+                .isEqualTo(new LogicalExpression(
+                        location(1, 1),
+                        LogicalExpression.Operator.AND,
+                        ImmutableList.of(
+                                new LongLiteral(location(1, 1), "1"),
+                                new LongLiteral(location(1, 7), "2"),
+                                new LongLiteral(location(1, 13), "3"),
+                                new LongLiteral(location(1, 19), "4"))));
+
+        assertThat(expression("1 OR 2 OR 3 OR 4"))
+                .isEqualTo(new LogicalExpression(
+                        location(1, 1),
+                        LogicalExpression.Operator.OR,
+                        ImmutableList.of(
+                                new LongLiteral(location(1, 1), "1"),
+                                new LongLiteral(location(1, 6), "2"),
+                                new LongLiteral(location(1, 11), "3"),
+                                new LongLiteral(location(1, 16), "4"))));
+
+        assertThat(expression("1 AND 2 AND 3 OR 4 AND 5 AND 6 OR 7 AND 8 AND 9"))
+                .isEqualTo(new LogicalExpression(
+                        location(1, 1),
+                        LogicalExpression.Operator.OR,
+                        ImmutableList.of(
+                                new LogicalExpression(
+                                        location(1, 1),
+                                        LogicalExpression.Operator.AND,
+                                        ImmutableList.of(
+                                                new LongLiteral(location(1, 1), "1"),
+                                                new LongLiteral(location(1, 7), "2"),
+                                                new LongLiteral(location(1, 13), "3"))),
+                                new LogicalExpression(
+                                        location(1, 18),
+                                        LogicalExpression.Operator.AND,
+                                        ImmutableList.of(
+                                                new LongLiteral(location(1, 18), "4"),
+                                                new LongLiteral(location(1, 24), "5"),
+                                                new LongLiteral(location(1, 30), "6"))),
+                                new LogicalExpression(
+                                        location(1, 35),
+                                        LogicalExpression.Operator.AND,
+                                        ImmutableList.of(
+                                                new LongLiteral(location(1, 35), "7"),
+                                                new LongLiteral(location(1, 41), "8"),
+                                                new LongLiteral(location(1, 47), "9"))))));
+
         assertExpression("1 AND 2 OR 3", LogicalExpression.or(
                 LogicalExpression.and(
                         new LongLiteral("1"),
